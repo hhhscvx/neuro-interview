@@ -1,0 +1,7 @@
+venv
+.env
+nemo_env
+interviews
+scraped_ffmpeg
+scraped_whisper
+nemo_cache
