@@ -16,21 +16,15 @@ parser.add_argument("--prompt", type=str, default=None)
 parser.add_argument("--model", default="medium", help="small|medium|large-v3")
 
 
-def get_device():
-    if torch.cuda.is_available():
-        return "cuda"
-    if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-        return "mps"  # MPS (Metal) для Mac M1/M2
-    return "cpu"
-
-
-print("Устройство:", get_device().upper())
-
-
 def main():
     args = parser.parse_args()
 
-    model = WhisperModel("medium", device=get_device(), compute_type="int8")
+    model = WhisperModel(
+        "medium",
+        compute_type="int8",
+        cpu_threads=os.cpu_count(),
+        num_workers=1,
+    )
 
     print("Транскрибирование...")
     t0 = perf_counter()
@@ -47,22 +41,22 @@ def main():
         os.mkdir("scraped_whisper")
 
     scraped_whisper_path = f"scraped_whisper/{args.path.split('.')[0]}"
-    
+
     segments_list = []
     full_text = ""
-    
+
     for segment in segments:
         segment_dict = {
             "start": segment.start,
             "end": segment.end,
-            "text": segment.text.strip()
+            "text": segment.text.strip(),
         }
         print(segment_dict)
         segments_list.append(segment_dict)
         full_text += segment.text.strip() + " "
 
     print(f"Транскрибация заняла {round(perf_counter()-t0,2)} с")
-    
+
     with open(scraped_whisper_path + ".json", "w", encoding="utf-8") as f:
         json.dump(segments_list, f, ensure_ascii=False, indent=2)
     with open(scraped_whisper_path + ".txt", "w", encoding="utf-8") as f:
