@@ -22,6 +22,7 @@ def main():
     model = WhisperModel(
         "medium",
         compute_type="int8",
+        device="cpu",
         cpu_threads=os.cpu_count(),
         num_workers=1,
     )

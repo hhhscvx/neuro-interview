@@ -1,8 +1,7 @@
 ### Видео —> Выжимка
-За основу брал [эту статью](https://habr.com/ru/companies/alfa/articles/909498/)
+За основу брал [эту статью](https://habr.com/ru/companies/alfa/articles/909498/), но вместо NeMo использую whisperx (проще ставится) и в конце скармливаю в GPT для выжимки полученного
 
 - `poetry install`
-- Для nemo_env: `pip install -r nemo_requirements.txt` (в другое окружение)
 
 ---
 
@@ -13,9 +12,6 @@
 2. whisper:
    - `python whisper_scribe.py input.wav` (берется из директории scraped_ffmpeg)
 
-3. nemo:
-   - Нужно зарегаться в nemo, получить токен и указать в .env как NEMO_HF_TOKEN
-   - Лучше это запускать на linux по идее
-   - pip install --upgrade pip setuptools wheel
-   - pip install Cython
-   - `python nemo_scribe.py input.wav` (берется из директории scraped_ffmpeg)
+3. whisperx (диаризация):
+   - Зарегаться и получить **Read токен** на [huggingface](https://huggingface.co/settings/tokens) и указать в .env. Обязательно получить доступ на репо [speaker-diarization-3.1](https://huggingface.co/pyannote/speaker-diarization-3.1) и [segmentation-3.0](https://huggingface.co/pyannote/segmentation-3.0)
+   - `python whisperx_diarize.py input.wav input.json --lang ru`
