@@ -5,6 +5,7 @@ from pathlib import Path
 from time import perf_counter
 
 import torch
+import pandas as pd
 import whisperx
 from whisperx.diarize import DiarizationPipeline
 
@@ -66,10 +67,8 @@ def main():
     result = {"segments": segs, "language": args.lang}
 
     logger.info("Подготовка аудио (возможна нарезка на части)…")
-    t_split0 = perf_counter()
     parts, total_sec = split_audio_to_parts(audio_path)
-    logger.info(f"Готово: {len(parts)} ч.(частей), длительность: {round(total_sec/60,1)} мин | "
-                f"заняло {round(perf_counter()-t_split0,2)} с")
+    logger.info(f"Готово: частей={len(parts)}шт. длительность: {round(total_sec/60,1)} мин | ")
 
     diar = DiarizationPipeline(use_auth_token=settings.HF_TOKEN, device="cpu")
     
@@ -81,7 +80,6 @@ def main():
         diar_segments = normalize_diar_segments(diar_raw)
 
         for seg in diar_segments:
-            logger.info(f"Type seg: {type(seg)} | seg: {seg}")
             start_g = seg["start"] + t0
             end_g = seg["end"] + t0
             if idx > 1 and end_g <= (t0 + settings.AUDIO_OVERLAP_SEC * 0.6):
@@ -89,19 +87,17 @@ def main():
             all_diar_segments.append({"start": start_g, "end": end_g, "speaker": seg["speaker"]})
 
         logger.success(f"[{idx}/{len(parts)}] Готово: сегментов={len(diar_segments)}, накоплено={len(all_diar_segments)}, {round(perf_counter()-t0_run,2)} с")
-
+ 
     logger.info("Назначаем спикеров сегментам Whisper…")
-    res_spk = whisperx.assign_word_speakers(all_diar_segments, result)
-    segments = res_spk["segments"]
+    diar_df = pd.DataFrame(all_diar_segments, columns=["start", "end", "speaker"])
+    diar_df = diar_df.sort_values("start").reset_index(drop=True)
+    diar_df["start"] = diar_df["start"].astype(float)
+    diar_df["end"]   = diar_df["end"].astype(float)
+    diar_df["speaker"] = diar_df["speaker"].astype(str)
+    logger.info(f"diar_df head:\n{diar_df.head(3)}")
 
-    # for seg in segments:
-    #     spk = seg.get("speaker")
-    #     if spk and spk.startswith("SPEAKER_"):
-    #         try:
-    #             n = int(spk.split("_")[-1])
-    #             seg["speaker"] = f"Speaker{n+1}"
-    #         except Exception:
-    #             pass
+    res_spk = whisperx.assign_word_speakers(diar_df, result)
+    segments = res_spk["segments"]
 
     base = Path(settings.SCRAPED_RESULT_PATH) / base_name
     save_result(base, segments)

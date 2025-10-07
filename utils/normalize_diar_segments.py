@@ -1,3 +1,5 @@
+import pandas as pd
+
 
 def normalize_diar_segments(obj):
     """
@@ -31,6 +33,42 @@ def normalize_diar_segments(obj):
             except Exception:
                 pass
         if out:
+            return out
+
+    if isinstance(obj, pd.DataFrame):
+        df = obj.copy()
+
+        # Нормализуем частые варианты наименований колонок
+        cols = {c.lower(): c for c in df.columns} 
+        if {"start","end","speaker"}.issubset({c.lower() for c in df.columns}):
+            return [
+                {"start": float(row[cols["start"]]),
+                    "end": float(row[cols["end"]]),
+                    "speaker": str(row[cols["speaker"]])}
+                for _, row in df.iterrows()
+            ]
+        if {"start","end","label"}.issubset({c.lower() for c in df.columns}):
+            return [
+                {"start": float(row[cols["start"]]),
+                    "end": float(row[cols["end"]]),
+                    "speaker": str(row[cols["label"]])}
+                for _, row in df.iterrows()
+            ]
+        if "segment" in {c.lower() for c in df.columns}:
+            seg_col = cols["segment"]
+            spk_col = cols["speaker"] if "speaker" in cols else cols.get("label")
+            if spk_col is None:
+                raise TypeError("DataFrame имеет column 'segment', но нет 'speaker'/'label'")
+            out = []
+            for _, row in df.iterrows():
+                seg = row[seg_col]
+                if hasattr(seg, "start") and hasattr(seg, "end"):
+                    start, end = float(seg.start), float(seg.end)
+                elif isinstance(seg, (tuple, list)) and len(seg) >= 2:
+                    start, end = float(seg[0]), float(seg[1])
+                else:
+                    raise TypeError(f"Неизвестный тип segment: {type(seg)}")
+                out.append({"start": start, "end": end, "speaker": str(row[spk_col])})
             return out
 
     raise TypeError(f"Unknown diarization output type: {type(obj)}")
