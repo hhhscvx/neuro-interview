@@ -4,14 +4,13 @@ import os
 from time import perf_counter
 
 from faster_whisper import WhisperModel
-import torch
+
+from utils import settings, logger
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument("path", type=str)
 parser.add_argument("--lang", type=str, default="ru")
-parser.add_argument("--temperature", type=float, default=0)
-parser.add_argument("--beam_size", type=int, default=5)
 parser.add_argument("--prompt", type=str, default=None)
 parser.add_argument("--model", default="medium", help="small|medium|large-v3")
 
@@ -27,21 +26,27 @@ def main():
         num_workers=1,
     )
 
-    print("Транскрибирование...")
+    logger.info("Транскрибирование...")
     t0 = perf_counter()
     segments, info = model.transcribe(
-        audio=f"scraped_ffmpeg/{args.path}",
+        audio=f"{settings.SCRAPED_FFMPEG_PATH}/{args.path}",
         language=args.lang,
         vad_filter=True,
-        temperature=args.temperature,
-        beam_size=args.beam_size,
+        temperature=0,
         initial_prompt=args.prompt,
+        condition_on_previous_text=False,
+        vad_parameters={
+            "threshold": 0.6,
+            "min_speech_duration_ms": 500,
+            "min_silence_duration_ms": 500,
+            "speech_pad_ms": 200,
+        },
     )
 
-    if not os.path.exists("scraped_whisper"):
-        os.mkdir("scraped_whisper")
+    if not os.path.exists(settings.SCRAPED_WHISPER_PATH):
+        os.mkdir(settings.SCRAPED_WHISPER_PATH)
 
-    scraped_whisper_path = f"scraped_whisper/{args.path.split('.')[0]}"
+    scraped_whisper_path = f"{settings.SCRAPED_WHISPER_PATH}/{args.path.split('.')[0]}"
 
     segments_list = []
     full_text = ""
@@ -52,17 +57,15 @@ def main():
             "end": segment.end,
             "text": segment.text.strip(),
         }
-        print(segment_dict)
+        logger.info(segment_dict)
         segments_list.append(segment_dict)
         full_text += segment.text.strip() + " "
 
-    print(f"Транскрибация заняла {round(perf_counter()-t0,2)} с")
+    logger.success(f"Транскрибация заняла {round(perf_counter()-t0,2)} с")
 
     with open(scraped_whisper_path + ".json", "w", encoding="utf-8") as f:
         json.dump(segments_list, f, ensure_ascii=False, indent=2)
-    with open(scraped_whisper_path + ".txt", "w", encoding="utf-8") as f:
-        f.write(full_text.strip())
-    print("Сохранено:", scraped_whisper_path + ".json / .txt")
+    logger.success("Сохранено:", scraped_whisper_path + ".json / .txt")
 
 
 if __name__ == "__main__":
