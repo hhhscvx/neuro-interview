@@ -2,6 +2,8 @@ import os
 import argparse
 import ffmpeg
 
+from utils import settings, logger
+
 
 def process_audio(input_path, output_path):
     """Обработка аудио с удалением пауз"""
@@ -28,14 +30,14 @@ def main():
     args = parser.parse_args()
     output_file = args.input_file.split(".")[0]
     
-    input_path = f"interviews/{args.input_file}"
-    output_path = f"scraped_ffmpeg/{output_file}.wav"
+    input_path = f"{settings.INTERVIEWS_PATH}/{args.input_file}"
+    output_path = f"{settings.SCRAPED_FFMPEG_PATH}/{output_file}.wav"
     
     try:
         process_audio(input_path, output_path)
-        print(f"Обработка завершена: {output_path}")
+        logger.success(f"Обработка завершена: {output_path}")
     except Exception as e:
-        print(f"Ошибка: {e}")
+        logger.error(f"Ошибка: {e}")
         raise e
 
 if __name__ == "__main__":
