@@ -1,17 +1,31 @@
 ### Видео —> Выжимка
 За основу брал [эту статью](https://habr.com/ru/companies/alfa/articles/909498/), но вместо NeMo использую whisperx (проще ставится) и в конце скармливаю в GPT для выжимки полученного
 
-- `poetry install`
+### Этапы транскрибации:
+1. ffmpeg для преобразования видео в .wav аудио, чтоб whisper-у было проще и лучше работать
+2. whisper — делает транскрибацию из аудио в речь
+3. whisperx — делает диаризация, разбивает речь по спикерам
+
+### Этапы установки:
+1. `poetry install`
+2. Поставить ffmpeg системно
+3. Для whisperx: 
+   - Зарегаться и получить **Read токен** на [huggingface](https://huggingface.co/settings/tokens) и указать в .env. Обязательно получить доступ на репо [speaker-diarization-3.1](https://huggingface.co/pyannote/speaker-diarization-3.1) и [segmentation-3.0](https://huggingface.co/pyannote/segmentation-3.0)
+4. Установить прочие переменные окружения в .env: опираться на .env.example
+
+### Запуск:
+- `poetry run python main.py` — начинает пайплайн для всех интервью, у которых еще нет готовой транскрибации (их нет в директории settings.SCRAPED_RESULT_PATH)
+- Есть флаги `--skip-ffmpeg`, `--skip-whisper` и `--skip-whisperx`, если нужно пропустить какой-то из этапов
 
 ---
 
+### Или вызов по отдельности:
+
 1. ffmpeg:
-   - Сначала ставим ffmpeg системно
-   - Затем `python ffmpeg_scribe.py input.mp4`
+   - Затем `python ffmpeg_scribe.py input.mp4` *(файл берется из директории settings.INTERVIEWS_PATH)*
 
 2. whisper:
-   - `python whisper_scribe.py input.wav`
+   - `python whisper_scribe.py input.wav` *(файл берется из директории settings.SCRAPED_FFMPEG_PATH)*
 
 3. whisperx (диаризация):
-   - Зарегаться и получить **Read токен** на [huggingface](https://huggingface.co/settings/tokens) и указать в .env. Обязательно получить доступ на репо [speaker-diarization-3.1](https://huggingface.co/pyannote/speaker-diarization-3.1) и [segmentation-3.0](https://huggingface.co/pyannote/segmentation-3.0)
-   - `python whisperx_diarize.py <filename>` - filname должен быть без расширения, подразуемевается, что есть filename.wav (после ffmpeg) и filename.json (после whisper)
+   - `python whisperx_diarize.py <filename>` *filename должен быть без расширения, подразуемевается, что есть filename.wav (после ffmpeg) и filename.json (после whisper)*
