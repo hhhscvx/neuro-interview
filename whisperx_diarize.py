@@ -8,29 +8,13 @@ import pandas as pd
 import whisperx
 from whisperx.diarize import DiarizationPipeline
 
-from utils import settings, logger, split_audio_to_parts, normalize_diar_segments
-
-
-def srt_time(t):
-    h = int(t // 3600)
-    m = int((t % 3600) // 60)
-    s = int(t % 60)
-    ms = int((t - int(t)) * 1000)
-    return f"{h:02}:{m:02}:{s:02},{ms:03}"
-
-
-def save_result(base: Path, segments) -> tuple[Path, Path]:
-    out_json = base.with_suffix(".tagged.json")
-    with out_json.open("w", encoding="utf-8") as f:
-        json.dump(segments, f, ensure_ascii=False, indent=2)
-    out_srt = base.with_suffix(".tagged.srt")
-    with out_srt.open("w", encoding="utf-8") as f:
-        for i, seg in enumerate(segments, 1):
-            speaker = seg.get("speaker") or "Speaker?"
-            f.write(
-                f"{i}\n{srt_time(seg['start'])} --> {srt_time(seg['end'])}\n{speaker}: {seg['text'].strip()}\n\n"
-            )
-    return out_json, out_srt
+from utils import (
+    settings,
+    logger,
+    split_audio_to_parts,
+    normalize_diar_segments,
+    save_whisperx_result,
+)
 
 
 def whisperx_diarize(filename: str, lang: str = "ru") -> bool:
@@ -105,8 +89,8 @@ def whisperx_diarize(filename: str, lang: str = "ru") -> bool:
         segments = res_spk["segments"]
 
         base = Path(settings.SCRAPED_RESULT_PATH) / base_name
-        out_json, out_srt = save_result(base, segments)
-        logger.success(f"Диаризация завершена. Сохранено: {out_json} | {out_srt}")
+        out_json = save_whisperx_result(base, segments)
+        logger.success(f"Диаризация завершена. Сохранено: {out_json}")
         return True
 
     except Exception as error:
