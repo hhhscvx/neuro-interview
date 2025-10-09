@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     SCRAPED_WHISPER_PATH: str = ""
     # директория после окончательного этапа транскрибации whisperx
     SCRAPED_RESULT_PATH: str = ""
+    RESULT_CHUNKS_PATH: str = "result_chunks"
 
     AUDIO_PARTS_PATH: str = "audio_parts"
     AUDIO_PARTS_MINUTES: int = 15

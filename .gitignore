@@ -4,6 +4,7 @@ scraped_ffmpeg
 scraped_whisper
 result
 audio_parts
+result_chunks
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
