@@ -3,7 +3,7 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from utils import settings
+from core.utils import settings
 
 
 def split_audio_to_parts(

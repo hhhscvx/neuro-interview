@@ -1,11 +1,12 @@
 import argparse
 from pathlib import Path
 
-from utils import settings, logger
-from utils.ensure_dirs import ensure_dirs
-from ffmpeg_scribe import ffmpeg_scribe
-from whisper_scribe import whisper_scribe
-from whisperx_diarize import whisperx_diarize
+from core.utils import settings, logger
+from core.utils.ensure_dirs import ensure_dirs
+
+from core.ffmpeg_scribe import ffmpeg_scribe
+from core.whisper_scribe import whisper_scribe
+from core.whisperx_diarize import whisperx_diarize
 
 
 VIDEO_EXTS = {".mp4", ".mkv", ".mov"}

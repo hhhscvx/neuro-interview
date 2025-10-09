@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from utils.config import settings
+from core.utils.config import settings
 
 
 def ensure_dirs():

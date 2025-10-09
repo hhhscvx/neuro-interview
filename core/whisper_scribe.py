@@ -4,7 +4,7 @@ from time import perf_counter
 
 from faster_whisper import WhisperModel
 
-from utils import settings, logger
+from core.utils import settings, logger
 
 
 def whisper_scribe(

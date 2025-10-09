@@ -8,7 +8,7 @@ import pandas as pd
 import whisperx
 from whisperx.diarize import DiarizationPipeline
 
-from utils import (
+from core.utils import (
     settings,
     logger,
     split_audio_to_parts,

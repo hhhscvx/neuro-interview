@@ -1,7 +1,7 @@
 import os
 import ffmpeg
 
-from utils import settings, logger
+from core.utils import settings, logger
 
 
 def process_audio(input_path, output_path):
