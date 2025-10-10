@@ -12,6 +12,7 @@
 3. Для whisperx: 
    - Зарегаться и получить **Read токен** на [huggingface](https://huggingface.co/settings/tokens) и указать в .env. Обязательно получить доступ на репо [speaker-diarization-3.1](https://huggingface.co/pyannote/speaker-diarization-3.1) и [segmentation-3.0](https://huggingface.co/pyannote/segmentation-3.0)
 4. Установить прочие переменные окружения в .env: опираться на .env.example
+5. Загрузить видео для транскрибации в директорию settings.INTERVIEWS_PATH
 
 ### Запуск:
 - `poetry run python main.py` — начинает пайплайн для всех интервью, у которых еще нет готовой транскрибации (их нет в директории settings.SCRAPED_RESULT_PATH)
