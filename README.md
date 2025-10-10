@@ -21,6 +21,7 @@
 #### Финал:
 Скормить полученное любой LLM (например GPT) и попросить сделать **выжимку**. Лучше перед этим разбить по удобным чанкам:
    - `python chunk_result.py <filename>` - *filename без расширения, он берется из директории settings.SCRAPED_RESULT_PATH*
+- Гайд на промпт для выжимки: [prompt-guide.txt](prompt-guide.txt)
 
 ---
 
