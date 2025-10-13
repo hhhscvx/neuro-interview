@@ -58,12 +58,9 @@ def chunk_text(text, max_chars=15000, overlap=800):
     return [c for c in chunks if c]
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filename", type=str, help="Название файла")
-    args = parser.parse_args()
+def chunk_transcribed(filename: str):
 
-    segs = load_segments(f"{settings.SCRAPED_RESULT_PATH}/{args.filename}.tagged.json")
+    segs = load_segments(f"{settings.SCRAPED_RESULT_PATH}/{filename}.tagged.json")
     segs = merge_consecutive(segs)
     txt = as_plain_text(segs)
     parts = chunk_text(txt, max_chars=15000, overlap=800)
@@ -72,7 +69,7 @@ def main():
     output_dir.mkdir(exist_ok=True)
     
     for i, chunk in enumerate(parts):
-        chunk_file = output_dir / f"Фабрика1_chunk_{i+1:03d}.txt"
+        chunk_file = output_dir / f"{filename}_chunk_{i+1:03d}.txt"
         chunk_file.write_text(chunk, encoding="utf-8")
         logger.success(f"Сохранён чанк {i+1}/{len(parts)}: {chunk_file}")
     
@@ -81,4 +78,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", type=str, help="Название файла")
+    args = parser.parse_args()
+    chunk_transcribed(args.filename)

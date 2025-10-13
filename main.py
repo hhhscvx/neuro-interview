@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 
 from core.utils import settings, logger
+from core.chunk_transcribed import chunk_transcribed
 from core.utils.ensure_dirs import ensure_dirs
 
 from core.ffmpeg_scribe import ffmpeg_scribe
@@ -97,6 +98,14 @@ def main():
                     raise Exception("Ошибка при WhisperX")
             else:
                 logger.info("[skip] Пропуск whisperx")
+
+            try:
+                if whisperx_done(base):
+                    chunk_transcribed(base)
+                else:
+                    logger.warning("Пропуск нарезки: нет финального результата whisperx")
+            except Exception as e:
+                logger.error(f"Ошибка при нарезке чанков для {base}: {e}")
 
             logger.success(f"Пайплайн завершен: {base}")
         except Exception as e:
