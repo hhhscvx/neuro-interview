@@ -1,3 +1,4 @@
+import argparse
 import os
 import ffmpeg
 
@@ -38,3 +39,10 @@ def ffmpeg_scribe(input_file: str) -> bool:
     except Exception as e:
         logger.error(f"[ffmpeg] Ошибка при преобразовании в аудио: {e}")
         return False
+
+
+if __name__ == "__main__":
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("input_file", type=str, help="Input file")
+    args = arg_parser.parse_args()
+    ffmpeg_scribe(args.input_file)

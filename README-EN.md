@@ -27,10 +27,10 @@ Feed the result to any LLM (e.g. GPT) and ask for **summary**. Better to split i
 ### Or run separately:
 
 1. ffmpeg:
-   - Then `python ffmpeg_scribe.py input.mp4` *(file taken from settings.INTERVIEWS_PATH directory)*
+   - Then `python -m core.ffmpeg_scribe input.mp4` *(file taken from settings.INTERVIEWS_PATH directory)*
 
 2. whisper:
-   - `python whisper_scribe.py input.wav` *(file taken from settings.SCRAPED_FFMPEG_PATH directory)*
+   - `python -m core.whisper_scribe input.wav` *(file taken from settings.SCRAPED_FFMPEG_PATH directory)*
 
 3. whisperx (diarization):
-   - `python whisperx_diarize.py <filename>` *filename should be without extension, assumes filename.wav (after ffmpeg) and filename.json (after whisper) exist*
+   - `python -m core.whisperx_diarize <filename>` *filename should be without extension, assumes filename.wav (after ffmpeg) and filename.json (after whisper) exist*

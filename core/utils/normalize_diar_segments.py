@@ -10,14 +10,24 @@ def normalize_diar_segments(obj):
         return obj
 
     # словарь-обёртка с ключом 'segments'
-    if isinstance(obj, dict) and "segments" in obj and isinstance(obj["segments"], list):
+    if (
+        isinstance(obj, dict)
+        and "segments" in obj
+        and isinstance(obj["segments"], list)
+    ):
         return obj["segments"]
 
     # pyannote Annotation
     if hasattr(obj, "itertracks"):
         out = []
         for seg, _, label in obj.itertracks(yield_label=True):
-            out.append({"start": float(seg.start), "end": float(seg.end), "speaker": str(label)})
+            out.append(
+                {
+                    "start": float(seg.start),
+                    "end": float(seg.end),
+                    "speaker": str(label),
+                }
+            )
         return out
 
     if isinstance(obj, str):
@@ -28,7 +38,9 @@ def normalize_diar_segments(obj):
                 continue
             parts = line.split()
             try:
-                start = float(parts[3]); dur = float(parts[4]); spk = parts[7]
+                start = float(parts[3])
+                dur = float(parts[4])
+                spk = parts[7]
                 out.append({"start": start, "end": start + dur, "speaker": spk})
             except Exception:
                 pass
@@ -39,26 +51,32 @@ def normalize_diar_segments(obj):
         df = obj.copy()
 
         # Нормализуем частые варианты наименований колонок
-        cols = {c.lower(): c for c in df.columns} 
-        if {"start","end","speaker"}.issubset({c.lower() for c in df.columns}):
+        cols = {c.lower(): c for c in df.columns}
+        if {"start", "end", "speaker"}.issubset({c.lower() for c in df.columns}):
             return [
-                {"start": float(row[cols["start"]]),
+                {
+                    "start": float(row[cols["start"]]),
                     "end": float(row[cols["end"]]),
-                    "speaker": str(row[cols["speaker"]])}
+                    "speaker": str(row[cols["speaker"]]),
+                }
                 for _, row in df.iterrows()
             ]
-        if {"start","end","label"}.issubset({c.lower() for c in df.columns}):
+        if {"start", "end", "label"}.issubset({c.lower() for c in df.columns}):
             return [
-                {"start": float(row[cols["start"]]),
+                {
+                    "start": float(row[cols["start"]]),
                     "end": float(row[cols["end"]]),
-                    "speaker": str(row[cols["label"]])}
+                    "speaker": str(row[cols["label"]]),
+                }
                 for _, row in df.iterrows()
             ]
         if "segment" in {c.lower() for c in df.columns}:
             seg_col = cols["segment"]
             spk_col = cols["speaker"] if "speaker" in cols else cols.get("label")
             if spk_col is None:
-                raise TypeError("DataFrame имеет column 'segment', но нет 'speaker'/'label'")
+                raise TypeError(
+                    "DataFrame имеет column 'segment', но нет 'speaker'/'label'"
+                )
             out = []
             for _, row in df.iterrows():
                 seg = row[seg_col]

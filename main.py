@@ -18,6 +18,26 @@ def already_done(base: str) -> bool:
     return (Path(settings.SCRAPED_RESULT_PATH) / f"{base}.tagged.json").exists()
 
 
+def ffmpeg_done(base: str) -> bool:
+    """Проверяет, есть ли аудио файл после ffmpeg"""
+    return (
+        (Path(settings.SCRAPED_FFMPEG_PATH) / f"{base}.wav").exists()
+        or (Path(settings.SCRAPED_FFMPEG_PATH) / f"{base}.mp3").exists()
+        or (Path(settings.SCRAPED_FFMPEG_PATH) / f"{base}.m4a").exists()
+        or (Path(settings.SCRAPED_FFMPEG_PATH) / f"{base}.flac").exists()
+    )
+
+
+def whisper_done(base: str) -> bool:
+    """Проверяет, есть ли JSON транскрибация от whisper"""
+    return (Path(settings.SCRAPED_WHISPER_PATH) / f"{base}.json").exists()
+
+
+def whisperx_done(base: str) -> bool:
+    """Проверяет, есть ли финальный результат от whisperx"""
+    return (Path(settings.SCRAPED_RESULT_PATH) / f"{base}.tagged.json").exists()
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Запуск полного пайплайна: ffmpeg → whisper → whisperx"
@@ -53,29 +73,35 @@ def main():
             continue
 
         logger.info(f"=== ▶ {base} ===")
+        try:
+            if not args.skip_ffmpeg:
+                if ffmpeg_done(base):
+                    logger.info(f"[skip] FFmpeg уже готов: {base}.wav")
+                else:
+                    if ffmpeg_scribe(src.name) is not True:
+                        raise Exception("FFmpeg не смог обработать файл")
+            else:
+                logger.info("[skip] Пропуск ffmpeg")
 
-        # ЗАПУСК FFMPEG
-        if not args.skip_ffmpeg:
-            if ffmpeg_scribe(src.name) is not True:
-                return
-        else:
-            logger.info("[skip] Пропуск ffmpeg")
+            if not args.skip_whisper:
+                if whisper_done(base):
+                    logger.info(f"[skip] Whisper уже готов: {base}.json")
+                else:
+                    if not whisper_scribe(f"{base}.wav", lang="ru"):
+                        raise Exception("Ошибка при Whisper")
+            else:
+                logger.info("[skip] Пропуск whisper")
 
-        # ЗАПУСК WHISPER
-        if not args.skip_whisper:
-            if not whisper_scribe(f"{base}.wav", lang="ru"):
-                return
-        else:
-            logger.info("[skip] Пропуск whisper")
+            if not args.skip_whisperx:
+                if not whisperx_diarize(base, lang="ru"):
+                    raise Exception("Ошибка при WhisperX")
+            else:
+                logger.info("[skip] Пропуск whisperx")
 
-        # ЗАПУСК WHISPERX
-        if not args.skip_whisperx:
-            if not whisperx_diarize(base, lang="ru"):
-                return
-        else:
-            logger.info("[skip] Пропуск whisperx")
-
-        logger.success(f"Пайплайн завершен: {base}")
+            logger.success(f"Пайплайн завершен: {base}")
+        except Exception as e:
+            logger.error(f"Ошибка при выполнении пайплайна для {base}: {e}")
+            logger.info(f"Пропуск {base}")
 
 
 if __name__ == "__main__":

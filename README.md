@@ -28,10 +28,10 @@
 ### Или вызов по отдельности:
 
 1. ffmpeg:
-   - Затем `python ffmpeg_scribe.py input.mp4` *(файл берется из директории settings.INTERVIEWS_PATH)*
+   - Затем `python -m core.ffmpeg_scribe input.mp4` *(файл берется из директории settings.INTERVIEWS_PATH)*
 
 2. whisper:
-   - `python whisper_scribe.py input.wav` *(файл берется из директории settings.SCRAPED_FFMPEG_PATH)*
+   - `python -m core.whisper_scribe input.wav` *(файл берется из директории settings.SCRAPED_FFMPEG_PATH)*
 
 3. whisperx (диаризация):
-   - `python whisperx_diarize.py <filename>` *filename должен быть без расширения, подразуемевается, что есть filename.wav (после ffmpeg) и filename.json (после whisper)*
+   - `python -m core.whisperx_diarize <filename>` *filename должен быть без расширения, подразуемевается, что есть filename.wav (после ffmpeg) и filename.json (после whisper)*

@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 from time import perf_counter
@@ -64,3 +65,10 @@ def whisper_scribe(
     except Exception as error:
         logger.error(f"Ошибка при транскрибации whisper: {error}")
         return False
+
+
+if __name__ == "__main__":
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("input_file", type=str, help="Input file")
+    args = arg_parser.parse_args()
+    whisper_scribe(args.input_file)

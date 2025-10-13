@@ -9,13 +9,13 @@ class Settings(BaseSettings):
     HF_TOKEN: str
 
     # директория, откуда ffmpeg будет брать видосы. По умолчанию из корня
-    INTERVIEWS_PATH: str = ""
+    INTERVIEWS_PATH: str = "interviews"
     # директория, в которой будут находиться wav файлы
-    SCRAPED_FFMPEG_PATH: str = ""
+    SCRAPED_FFMPEG_PATH: str = "scraped_ffmpeg"
     # директория, в которой будут находиться json-ы транскрибации whisper
-    SCRAPED_WHISPER_PATH: str = ""
+    SCRAPED_WHISPER_PATH: str = "scraped_whisper"
     # директория после окончательного этапа транскрибации whisperx
-    SCRAPED_RESULT_PATH: str = ""
+    SCRAPED_RESULT_PATH: str = "result"
     RESULT_CHUNKS_PATH: str = "result_chunks"
 
     AUDIO_PARTS_PATH: str = "audio_parts"
