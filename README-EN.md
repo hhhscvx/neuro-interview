@@ -20,7 +20,7 @@ Based on [this article](https://habr.com/ru/companies/alfa/articles/909498/), bu
 
 #### Final step:
 Feed the result to any LLM (e.g. GPT) and ask for **summary**. Better to split into convenient chunks first:
-   - `python chunk_result.py <filename>` - *filename without extension, taken from settings.SCRAPED_RESULT_PATH directory*
+   - `python -m core.chunk_transcribed.py <filename>` - *filename without extension, taken from settings.SCRAPED_RESULT_PATH directory*
 - Prompt guide for summary: [prompt-guide.txt](prompt-guide.txt)
 ---
 
